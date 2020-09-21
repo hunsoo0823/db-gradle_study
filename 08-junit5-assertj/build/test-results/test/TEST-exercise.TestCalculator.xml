@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="exercise.TestCalculator" tests="5" skipped="0" failures="0" errors="0" timestamp="2020-09-21T11:25:30" hostname="songhyeonsuui-MacBookPro.local" time="0.255">
+  <properties/>
+  <testcase name="testAdd()" classname="exercise.TestCalculator" time="0.206"/>
+  <testcase name="testDescribeingAssertion()" classname="exercise.TestCalculator" time="0.004"/>
+  <testcase name="testNumber()" classname="exercise.TestCalculator" time="0.002"/>
+  <testcase name="testString()" classname="exercise.TestCalculator" time="0.007"/>
+  <testcase name="testCollection()" classname="exercise.TestCalculator" time="0.017"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

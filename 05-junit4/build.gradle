@@ -1,0 +1,24 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'exercise.HelloWorld'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  implementation     'org.slf4j:slf4j-api:1.7.+'
+  runtimeOnly        'ch.qos.logback:logback-classic:1.2.+'
+
+  testImplementation 'junit:junit:4.13'
+}
+
+test {
+  outputs.upToDateWhen {false}
+  testLogging {
+    events "passed", "skipped", "failed"
+    showStandardStreams = true
+    exceptionFormat = 'full'
+  }
+}

@@ -1,0 +1,10 @@
+apply plugin: 'java'
+
+task run(type: JavaExec) {
+  group = 'Application'
+  description = 'Runs HelloWorld'
+
+  main = 'exercise.HelloWorld'
+  classpath = sourceSets.main.runtimeClasspath
+}
+

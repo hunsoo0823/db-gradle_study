@@ -1,0 +1,30 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'exercise.HelloWorld'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  implementation 'org.slf4j:slf4j-api:1.7.+' //  라이브러리 사용하겠다고 선언 (컴파일,런)
+  runtimeOnly    'ch.qos.logback:logback-classic:1.2.+' // (컴파일에는 필요없다, 런할때는 필요하다.)
+  // from Gradle 3.0
+  // ------------------------------------------------------
+  //compileOnly        --> compileOnly
+  //compile            --> implementation or api
+  //testCompile        --> testImplementation or testApi
+  //runtime            --> runtimeOnly
+  //testRuntime        --> testRuntimeOnly
+  // ------------------------------------------------------
+}
+
+task demo(type: JavaExec) {
+  group = 'Application'
+  description = 'Runs DemoSlf4jLogback'
+
+  main = 'exercise.DemoSlf4jLogback'
+  classpath = sourceSets.main.runtimeClasspath
+}
+
