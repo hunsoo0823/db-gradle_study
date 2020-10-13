@@ -1,0 +1,11 @@
+gradle clean
+gradle db
+
+gradle ctest
+gradle db
+gradle qtest
+gradle qtest2
+    ferry corsten
+
+gradle atest
+gradle db

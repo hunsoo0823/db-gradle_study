@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="exercise.HamcrestTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2020-09-28T16:36:44" hostname="songhyeonsuui-MacBookPro.local" time="0.038">
+  <properties/>
+  <testcase name="test_anyOf_allOf_instanceOf()" classname="exercise.HamcrestTest" time="0.025"/>
+  <testcase name="testNumber()" classname="exercise.HamcrestTest" time="0.002"/>
+  <testcase name="testString()" classname="exercise.HamcrestTest" time="0.002"/>
+  <testcase name="testCollection()" classname="exercise.HamcrestTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

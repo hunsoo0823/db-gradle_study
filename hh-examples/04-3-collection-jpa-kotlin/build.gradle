@@ -1,0 +1,186 @@
+plugins {
+  id 'java'
+  id 'application'
+
+  id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+  //id 'org.jetbrains.kotlin.kapt' version '1.4.10'
+  id 'org.jetbrains.kotlin.plugin.jpa' version '1.4.10'
+  id 'org.jetbrains.kotlin.plugin.spring' version '1.4.10'
+
+  id 'org.springframework.boot' version '2.3.3.RELEASE' apply false
+  id 'io.spring.dependency-management' version '1.0.10.RELEASE' apply false
+}
+
+allprojects {
+  apply plugin: 'io.spring.dependency-management'
+  dependencyManagement {
+    imports {
+      mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+    }
+  }
+  ext['kotlin.version'] = '1.4.10'
+
+  application {
+    mainClassName = project.findProperty('mainClass') ?: 'com.oreilly.hh.QueryTestKt'
+  }
+
+  task cleanDb(type: Delete) {
+    group = 'Application'
+    description = 'Cleans build/music.*.db'
+
+    delete fileTree('build') {
+        include '**/music.*.db'
+    }
+  }
+
+  task cleanAll(dependsOn: clean, type: Delete) {
+    group = 'Application'
+    description = 'Cleans build/gralde, build/eclipse, and build itself'
+
+    delete 'bin'
+  }
+}
+
+allprojects {
+  // Kotlin compiler is configured to generate Java 11 bytecode (Java 6 by default).
+  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+    kotlinOptions {
+      jvmTarget = "11"
+      freeCompilerArgs = ["-Xjsr305=strict", '-Xjvm-default=enable']
+    }
+  }
+
+  // sourceSets {
+  //   main.resources.srcDir 'src/main/kotlin'
+  //   test.resources.srcDir 'src/test/kotlin'
+  // }
+
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    // Kotlin
+    implementation          'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation          'org.jetbrains.kotlin:kotlin-reflect'
+    testImplementation      'org.jetbrains.kotlin:kotlin-test'
+    testImplementation      'org.jetbrains.kotlin:kotlin-test-junit5'
+
+    implementation          'io.github.microutils:kotlin-logging:1.+'
+
+    // Slf4j
+    implementation          'org.slf4j:slf4j-api'
+    runtimeOnly             'ch.qos.logback:logback-classic'
+
+    // JUnit 5
+    testImplementation      'org.junit.jupiter:junit-jupiter-api'
+    testImplementation      'org.junit.jupiter:junit-jupiter-params'
+    testRuntimeOnly         'org.junit.jupiter:junit-jupiter-engine'
+    // JUnit 4 also
+    testRuntimeOnly         'org.junit.vintage:junit-vintage-engine'
+
+    testImplementation      'org.assertj:assertj-core'
+
+    // QueryDSL JPA
+    //implementation        'com.querydsl:querydsl-jpa'
+    //implementation        'jakarta.annotation:jakarta.annotation-api'
+    //kapt                  'com.querydsl:querydsl-apt:jpa'                  // Magic happens here
+
+    // Hibernate
+    implementation          'org.hibernate:hibernate-core'
+    runtimeOnly             'org.hibernate:hibernate-hikaricp'
+
+    // JDBC Driver
+    runtimeOnly             'com.h2database:h2'
+  }
+}
+
+// Test
+allprojects {
+  test {
+    useJUnitPlatform()
+
+    outputs.upToDateWhen {false}
+    testLogging {
+      events = ['passed', 'skipped', 'failed']
+      showStandardStreams = true
+      exceptionFormat = 'full'
+    }
+
+    afterSuite { desc, result ->
+      if (!desc.parent) { // will match the outermost suite
+        println "\nResults: ${result.resultType} (${result.testCount} tests -> " +
+        "${result.successfulTestCount} passed, " +
+        "${result.failedTestCount} failed, " +
+        "${result.skippedTestCount} skipped)"
+      }
+    }
+  }
+}
+
+// SQL and Hibernate
+allprojects {
+  configurations {
+    dbtool
+  }
+
+  dependencies {
+    dbtool 'com.h2database:h2'
+    dbtool 'org.hsqldb:hsqldb'
+  }
+
+  task db(type: JavaExec) {
+    group = 'Application'
+    description = 'Runs DatabaseManagerSwing'
+
+    main = 'org.hsqldb.util.DatabaseManagerSwing'
+    args '--driver',    'org.h2.Driver'
+    args '--url',       'jdbc:h2:file:./build/music'
+    args '--user',      'sa'
+    //args '--password',  ''
+    classpath = configurations.dbtool                        // libraries only
+  }
+
+  task schema(dependsOn: classes, type: JavaExec) {
+    group = 'Application'
+    description = 'Generates the database schema from entities'
+
+    main = 'com.oreilly.hh.GenerateSchemaKt'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+}
+
+allprojects {
+  task ctest(dependsOn: classes, type: JavaExec) {
+    group = 'Application'
+    description = 'Runs CreateTest'
+
+    main = 'com.oreilly.hh.CreateTestKt'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+
+  task qtest(dependsOn: classes, type: JavaExec) {
+    group = 'Application'
+    description = 'Runs QueryTest'
+
+    main = 'com.oreilly.hh.QueryTestKt'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+
+  task qtest2(dependsOn: classes, type: JavaExec) {
+    group = 'Application'
+    description = 'Runs QueryTest2'
+
+    main = 'com.oreilly.hh.QueryTest2Kt'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+
+  task atest(dependsOn: classes, type: JavaExec) {
+    group = 'Application'
+    description = 'Runs AlbumTest'
+
+    main = 'com.oreilly.hh.AlbumTestKt'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+}
+

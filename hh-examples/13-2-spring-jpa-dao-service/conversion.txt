@@ -1,0 +1,15 @@
+prior to JPA 2.0
+	import org.hibernate.annotations.CollectionOfElements;
+JPA 2.0
+	import javax.persistence.ElementCollection;
+
+From BaseTestCase.java
+	- remove the log4j dependency
+	- s/AnnotationConfiguration/Configuration/g
+
+for AlbumTest.java QueryTest.java TestRunner.java
+	log4j -> slf4j
+
+for *DAO
+    HibernateTemplate.method() -> getCurrentSession.method()
+

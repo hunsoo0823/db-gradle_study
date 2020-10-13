@@ -1,0 +1,14 @@
+gradle clean
+
+gradle ctest
+gradle qtest
+gradle atest
+
+gradle db
+
+or
+
+gradle bootRun -Pargs=createTest
+gradle bootRun -Pargs=queryTest
+gradle bootRun -Pargs=albumTest
+

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="com.oreilly.hh.data.Album" table="ALBUM">
+    <meta attribute="class-description">
+      Represents an album in the music database, an organized list of tracks.
+      @author Jim Elliott (with help from Hibernate)
+    </meta>
+
+    <id column="ALBUM_ID" name="id" type="int">
+      <meta attribute="scope-set">protected</meta>
+      <generator class="native" />
+    </id>
+
+    <property name="title" type="string">
+      <meta attribute="use-in-tostring">true</meta>
+      <column index="ALBUM_TITLE" name="TITLE" not-null="true" />
+    </property>
+
+    <property name="numDiscs" type="integer" />
+
+    <list name="tracks" table="ALBUM_TRACKS" cascade="all">
+      <meta attribute="use-in-tostring">true</meta>
+      <key column="ALBUM_ID" />
+      <list-index column="LIST_POS" />
+      <many-to-many class="com.oreilly.hh.data.Track" column="TRACK_ID"/>
+    </list>
+
+    <property name="added" type="date">
+      <meta attribute="field-description">
+        When the album was created
+      </meta>
+    </property>
+
+  </class>
+</hibernate-mapping>

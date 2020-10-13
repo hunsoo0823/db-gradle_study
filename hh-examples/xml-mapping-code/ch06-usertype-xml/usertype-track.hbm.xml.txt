@@ -1,0 +1,10 @@
+
+Method 1:
+    the UserType implementations were compiled before running the "hbm2java" task.
+
+
+Method 2:
+    add to Track.hbm.xml  the following lines:
+    <meta attribute="property-type">com.oreilly.hh.StereoVolume</meta>
+    <meta attribute="property-type">com.oreilly.hh.SourceMedia</meta>
+

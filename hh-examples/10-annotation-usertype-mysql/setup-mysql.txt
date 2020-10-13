@@ -1,0 +1,17 @@
+
+% mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 3 to server version: 5.0.21
+
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+
+mysql> CREATE DATABASE notebook_db;
+Query OK, 1 row affected (0.03 sec)
+
+mysql> GRANT ALL ON notebook_db.* TO 'jim'@'localhost' IDENTIFIED BY 's3cret';
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> quit;
+Bye
+

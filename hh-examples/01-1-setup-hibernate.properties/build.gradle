@@ -1,0 +1,181 @@
+plugins {
+  id 'java'
+  id 'application'
+
+  id 'org.springframework.boot' version '2.3.3.RELEASE' apply false
+  id 'io.spring.dependency-management' version '1.0.10.RELEASE' apply false
+}
+
+allprojects {
+  apply plugin: 'io.spring.dependency-management'
+  dependencyManagement {
+    imports {
+      mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+    }
+  }
+
+  application {
+    mainClassName = project.findProperty('mainClass') ?: 'com.oreilly.hh.QueryTest'
+  }
+
+  task cleanDb(type: Delete) {
+    group = 'Application'
+    description = 'Cleans build/music.*.db'
+
+    delete fileTree('build') {
+        include '**/music.*.db'
+    }
+  }
+
+  task cleanAll(dependsOn: clean, type: Delete) {
+    group = 'Application'
+    description = 'Cleans build/gralde, build/eclipse, and build itself'
+
+    delete 'bin'
+  }
+}
+
+allprojects {
+  tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:deprecation'  // @SuppressWarnings("deprecation")
+    options.compilerArgs << '-Xlint:unchecked'    // @SuppressWarnings("unchecked")
+  }
+
+  tasks.withType(Test) {
+    systemProperty "file.encoding", "UTF-8"
+  }
+
+  //sourceSets {
+  //  main.resources.srcDir 'src/main/java'
+  //  test.resources.srcDir 'src/test/java'
+  //}
+
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    // Lombok
+    annotationProcessor     'org.projectlombok:lombok'
+    compileOnly             'org.projectlombok:lombok'
+
+    // Slf4j
+    implementation          'org.slf4j:slf4j-api'
+    runtimeOnly             'ch.qos.logback:logback-classic'
+
+    // JUnit 5
+    testImplementation      'org.junit.jupiter:junit-jupiter-api'
+    testImplementation      'org.junit.jupiter:junit-jupiter-params'
+    testRuntimeOnly         'org.junit.jupiter:junit-jupiter-engine'
+    // JUnit 4 also
+    testRuntimeOnly         'org.junit.vintage:junit-vintage-engine'
+
+    testImplementation      'org.assertj:assertj-core'
+
+    // QueryDSL JPA
+    //implementation        'com.querydsl:querydsl-jpa'
+    //implementation        'jakarta.annotation:jakarta.annotation-api'
+    //annotationProcessor   'com.querydsl:querydsl-apt::jpa'
+    //annotationProcessor   'jakarta.persistence:jakarta.persistence-api'
+    //annotationProcessor   'jakarta.annotation:jakarta.annotation-api'
+
+    // Hibernate
+    implementation          'org.hibernate:hibernate-core'
+    runtimeOnly             'org.hibernate:hibernate-hikaricp'
+
+    // JDBC Driver
+    runtimeOnly             'com.h2database:h2'
+  }
+}
+
+// Test
+allprojects {
+  test {
+    useJUnitPlatform()
+
+    outputs.upToDateWhen {false}
+    testLogging {
+      events = ['passed', 'skipped', 'failed']
+      showStandardStreams = true
+      exceptionFormat = 'full'
+    }
+
+    afterSuite { desc, result ->
+      if (!desc.parent) { // will match the outermost suite
+        println "\nResults: ${result.resultType} (${result.testCount} tests -> " +
+        "${result.successfulTestCount} passed, " +
+        "${result.failedTestCount} failed, " +
+        "${result.skippedTestCount} skipped)"
+      }
+    }
+  }
+}
+
+// SQL and Hibernate
+allprojects {
+  configurations {
+    dbtool
+  }
+
+  dependencies {
+    dbtool 'com.h2database:h2'
+    dbtool 'org.hsqldb:hsqldb'
+  }
+
+  task db(type: JavaExec) {
+    group = 'Application'
+    description = 'Runs DatabaseManagerSwing'
+
+    main = 'org.hsqldb.util.DatabaseManagerSwing'
+    args '--driver',    'org.h2.Driver'
+    args '--url',       'jdbc:h2:file:./build/music'
+    args '--user',      'sa'
+    //args '--password',  ''
+    classpath = configurations.dbtool                        // libraries only
+  }
+
+  task schema(dependsOn: classes, type: JavaExec) {
+    group = 'Application'
+    description = 'Generates the database schema from entities'
+
+    main = 'org.hibernate.tool.hbm2ddl.SchemaExport'
+    args '--config=hibernate.cfg.xml', '--text', '--format', '--delimiter=;'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+}
+
+allprojects {
+  task ctest(dependsOn: classes, type: JavaExec) {
+    group = 'Application'
+    description = 'Runs CreateTest'
+
+    main = 'com.oreilly.hh.CreateTest'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+
+  task qtest(dependsOn: classes, type: JavaExec) {
+    group = 'Application'
+    description = 'Runs QueryTest'
+
+    main = 'com.oreilly.hh.QueryTest'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+
+  task qtest2(dependsOn: classes, type: JavaExec) {
+    group = 'Application'
+    description = 'Runs QueryTest2'
+
+    main = 'com.oreilly.hh.QueryTest2'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+
+  task atest(dependsOn: classes, type: JavaExec) {
+    group = 'Application'
+    description = 'Runs AlbumTest'
+
+    main = 'com.oreilly.hh.AlbumTest'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+}
+

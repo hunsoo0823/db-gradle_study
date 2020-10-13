@@ -1,0 +1,141 @@
+ext {
+  hibernateVersion = '5.3.+'             // 5.3.4.Final
+  springVersion    = '5.+'               // 5.0.8.RELEASE
+}
+
+// utf-8 for Windows
+allprojects {
+  apply plugin: 'java'
+
+  tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+  }
+
+  tasks.withType(Test) {
+    systemProperty "file.encoding", "UTF-8"
+  }
+}
+
+allprojects {
+  apply plugin: 'java'
+  apply plugin: 'application'
+
+  mainClassName = project.findProperty('mainClass') ?: 'com.oreilly.hh.QueryTest'
+
+  compileJava {
+    // @SuppressWarnings("deprecation")
+    options.compilerArgs << '-Xlint:deprecation'
+    // @SuppressWarnings("unchecked")
+    options.compilerArgs << '-Xlint:unchecked'
+  }
+
+  sourceSets {
+    main.resources.srcDir 'src/main/java'
+    test.resources.srcDir 'src/test/java'
+  }
+
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    //annotationProcessor     'org.projectlombok:lombok:1.+'
+    //compileOnly             'org.projectlombok:lombok:1.+'
+    //testAnnotationProcessor 'org.projectlombok:lombok:1.+'
+    //testCompileOnly         'org.projectlombok:lombok:1.+'
+
+    implementation     "org.hibernate:hibernate-core:${hibernateVersion}"
+
+    implementation     'org.slf4j:slf4j-api:1.7.+'
+    runtimeOnly        'ch.qos.logback:logback-classic:1.2.+'
+
+    runtimeOnly        'org.hsqldb:hsqldb:2.+'
+    runtimeOnly        'com.h2database:h2:1.+'
+    runtimeOnly        'mysql:mysql-connector-java:6.+'
+    runtimeOnly        'org.postgresql:postgresql:42.+'
+
+    testImplementation 'junit:junit:4.+'
+    testImplementation 'org.hamcrest:hamcrest-library:1.+'
+
+    // java 9
+    runtimeOnly        'jakarta.xml.bind:jaxb-api:2.+'
+    runtimeOnly        'com.sun.xml.bind:jaxb-core:2.+'
+    runtimeOnly        'com.sun.xml.bind:jaxb-impl:2.+'
+    runtimeOnly        'jakarta.activation:activation:1.+'
+    implementation     'jakarta.annotation:jakarta.annotation-api:1.+'
+  }
+}
+
+// SQL and Hibernate
+allprojects {
+  configurations {
+    dbtool
+  }
+  dependencies {
+    dbtool 'com.h2database:h2:1.+'
+    dbtool 'org.hsqldb:hsqldb:2.+'
+  }
+
+  task db(type: JavaExec) {
+    main = 'org.hsqldb.util.DatabaseManagerSwing'
+    args   '--driver',    jdbcDriver
+    args   '--url',       jdbcUrl
+    args   '--user',      jdbcUsername
+    if (jdbcPassword != '') {               // for Windows
+      args '--password', jdbcPassword
+    }
+    classpath = configurations.dbtool       // libraries only
+  }
+
+  task schema(dependsOn: classes, type: JavaExec) {
+    main = 'org.hibernate.tool.hbm2ddl.SchemaExport'
+    args '--config=hibernate.cfg.xml', '--text', '--format', '--delimiter=;'
+    //args '--create'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+}
+
+// Test
+allprojects {
+  test {
+    testLogging {
+      outputs.upToDateWhen {false}
+      events "passed", "skipped", "failed"
+      showStandardStreams = true
+      exceptionFormat = 'full'
+    }
+
+    afterSuite { desc, result ->
+      if (!desc.parent) { // will match the outermost suite
+        println "\nResults: ${result.resultType} " +
+          "(${result.testCount} tests -> " +
+          "${result.successfulTestCount} successes, " +
+          "${result.failedTestCount} failures, " +
+          "${result.skippedTestCount} skipped)"
+      }
+    }
+  }
+}
+
+allprojects {
+  task ctest(dependsOn: classes, type: JavaExec) {
+    main = 'com.oreilly.hh.CreateTest'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+
+  task qtest(dependsOn: classes, type: JavaExec) {
+    main = 'com.oreilly.hh.QueryTest'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+
+  task qtest2(dependsOn: classes, type: JavaExec) {
+    main = 'com.oreilly.hh.QueryTest2'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+
+  task atest(dependsOn: classes, type: JavaExec) {
+    main = 'com.oreilly.hh.AlbumTest'
+    classpath = sourceSets.main.runtimeClasspath
+  }
+}
+

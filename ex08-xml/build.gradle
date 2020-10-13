@@ -1,0 +1,88 @@
+plugins {
+  id 'java'
+}
+
+sourceSets {
+  main.resources.srcDir 'src/main/java'
+  test.resources.srcDir 'src/test/java'
+}
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  implementation     'org.hibernate:hibernate-core:5.4.+'
+
+  runtimeOnly        'com.h2database:h2:1.+'
+  runtimeOnly        'org.hsqldb:hsqldb:2.+'
+
+  // Slf4j
+  implementation     'org.slf4j:slf4j-api:1.7.+'
+  runtimeOnly        'ch.qos.logback:logback-classic:1.2.+'
+
+  // JUnit 4
+  //testImplementation 'junit:junit:4.13'
+
+  // JUnit 5
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.6.+'
+
+  // Hamcrest
+  testImplementation 'org.hamcrest:hamcrest-library:2.+'
+
+  // AssertJ
+  testImplementation 'org.assertj:assertj-core:3.+'
+
+  // Java 9 and Hibernate 5.3 below
+  //runtimeOnly      'jakarta.xml.bind:jaxb-api:2.+'          // java.xml.bind     JAXB
+  //runtimeOnly      'com.sun.xml.bind:jaxb-core:2.+'
+  //runtimeOnly      'com.sun.xml.bind:jaxb-impl:2.3.+'
+}
+
+test {
+  // Enable JUnit 5 (Gradle 4.6+)
+  useJUnitPlatform()
+
+  outputs.upToDateWhen {false}
+  testLogging {
+    events = ['passed', 'skipped', 'failed']
+    showStandardStreams = true
+    exceptionFormat = 'full'
+  }
+
+  afterSuite { desc, result ->
+    if (!desc.parent) {
+      println "\nResults: ${result.resultType} " +
+        "(${result.testCount} tests -> " +
+        "${result.successfulTestCount} successes, " +
+        "${result.failedTestCount} failures, " +
+        "${result.skippedTestCount} skipped)"
+    }
+  }
+}
+
+task db(type: JavaExec) {
+  main = 'org.hsqldb.util.DatabaseManagerSwing'
+  args '--driver',   'org.h2.Driver'
+  args '--url',      'jdbc:h2:file:./build/music'
+  args '--user',     'sa'
+  //args '--password', ''
+  classpath = configurations.runtimeClasspath   // libraries only
+}
+
+task ctest(dependsOn: classes, type: JavaExec) {
+  group = 'Application'
+  description = 'Runs CreateTest'
+
+  main = 'com.oreilly.hh.CreateTest'
+  classpath = sourceSets.main.runtimeClasspath
+}
+
+task qtest(dependsOn: classes, type: JavaExec) {
+  group = 'Application'
+  description = 'Runs QueryTest'
+
+  main = 'com.oreilly.hh.QueryTest'
+  classpath = sourceSets.main.runtimeClasspath
+}
+

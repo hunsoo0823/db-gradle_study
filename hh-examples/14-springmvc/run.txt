@@ -1,0 +1,8 @@
+
+gradle --stop
+
+gradle war
+gradle cargoRunLocal
+
+http://localhost:8080/springmvc/albums
+

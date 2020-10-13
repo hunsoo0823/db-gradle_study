@@ -1,0 +1,5 @@
+prior to JPA 2.0
+	import org.hibernate.annotations.CollectionOfElements;
+JPA 2.0
+	import javax.persistence.ElementCollection;
+

@@ -1,0 +1,6 @@
+exercise/AssertJTest.java
+ exercise.AssertJTest
+exercise/JUnitTest.java
+ exercise.JUnitTest
+exercise/HamcrestTest.java
+ exercise.HamcrestTest

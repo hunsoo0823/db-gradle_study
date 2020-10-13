@@ -1,0 +1,7 @@
+gradle clean
+gradle db
+
+gradle ctest
+gradle db
+
+gradle schema

@@ -1,0 +1,38 @@
+plugins {
+  id 'java'
+
+  id 'org.springframework.boot' version '2.3.3.RELEASE'
+  id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+}
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  // Lombok
+  annotationProcessor 'org.projectlombok:lombok'
+  compileOnly         'org.projectlombok:lombok'
+
+  // Springboot
+  implementation      'org.springframework.boot:spring-boot-starter-thymeleaf'
+  implementation      'org.springframework.boot:spring-boot-starter-web'
+  implementation      'org.springframework.boot:spring-boot-starter-data-jpa'
+  testImplementation  'org.springframework.boot:spring-boot-starter-test'
+
+  runtimeOnly         'org.springframework.boot:spring-boot-devtools'
+
+  // JDBC Driver
+  runtimeOnly         'com.h2database:h2'
+}
+
+test {
+  useJUnitPlatform()
+
+  outputs.upToDateWhen {false}
+  testLogging {
+    events = ['passed', 'skipped', 'failed']
+    showStandardStreams = true
+    exceptionFormat = 'full'
+  }
+}

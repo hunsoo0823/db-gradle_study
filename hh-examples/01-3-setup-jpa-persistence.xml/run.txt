@@ -1,0 +1,11 @@
+
+java -version
+gradle -version
+
+mkdir -p src/main/java/com/oreilly/hh/data	(Linux or Mac OS X)
+
+gradle db
+
+ls build
+  --> music.*
+

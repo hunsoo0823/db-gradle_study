@@ -1,0 +1,158 @@
+plugins {
+  id 'io.franzbecker.gradle-lombok'    apply false // 'gradle installLombok' for Eclipse
+  id 'com.bmuschko.cargo'              apply false
+
+  id 'org.springframework.boot'        apply false
+  id 'io.spring.dependency-management' apply false
+}
+
+allprojects {
+  apply plugin: 'io.spring.dependency-management'
+  dependencyManagement {
+    imports {
+      mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+    }
+  }
+}
+
+allprojects {
+  apply plugin: 'war'
+  apply plugin: 'io.franzbecker.gradle-lombok'
+
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    implementation     'org.slf4j:slf4j-api'
+    runtimeOnly        'ch.qos.logback:logback-classic'
+    //runtimeOnly      'org.slf4j:jcl-over-slf4j'
+    //runtimeOnly      'org.slf4j:log4j-over-slf4j'
+    //runtimeOnly      'org.slf4j:jul-to-slf4j'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core'
+
+    implementation     'org.springframework:spring-context'
+    //implementation   'org.springframework:spring-context-support'   // EhCache, FreeMarker, Quartz, JavaMail
+    implementation     'org.springframework:spring-orm'               // Hibernate, JPA, MyBatis
+    //implementation   'org.springframework:spring-jdbc'              // JdbcTemplate
+    implementation     'org.springframework:spring-webmvc'            // Spring MVC
+    //implementation   'org.springframework:spring-web'               // Servlet, Portlet
+    testImplementation 'org.springframework:spring-test'
+
+    //implementation   'org.springframework.data:spring-data-jpa'
+
+    //implementation   'org.thymeleaf:thymeleaf-spring5'
+    //implementation   'com.fasterxml.jackson.core:jackson-databind'
+
+    implementation     'org.hibernate:hibernate-core'
+    runtimeOnly        'org.hibernate:hibernate-hikaricp'
+    //runtimeOnly      'org.hibernate:hibernate-ehcache'
+
+    runtimeOnly        'com.h2database:h2'
+    runtimeOnly        'org.postgresql:postgresql'
+
+    //implementation   'jakarta.annotation:jakarta.annotation-api'    // jakarta.annotation.PostConstruct
+    //implementation   'jakarta.xml.bind:jaxb-api'
+    //runtimeOnly      'org.glassfish.jaxb:jaxb-runtime'
+  }
+}
+
+allprojects {
+  test {
+    useJUnitPlatform()
+
+    outputs.upToDateWhen {false}
+    testLogging {
+      events = ['passed', 'skipped', 'failed']
+      showStandardStreams = true
+      exceptionFormat = 'full'
+    }
+  }
+}
+
+import org.apache.tools.ant.taskdefs.condition.Os
+
+// Web Application
+allprojects {
+  apply plugin: 'war'                 // providedCompile, providedRuntime
+  apply plugin: 'com.bmuschko.cargo'  // cargoRunLocal
+
+  configurations {
+    tomcatZip
+  }
+
+  cargo {
+    containerId = 'tomcat9x'
+    port = 8080
+
+    deployable {
+      context = 'springmvc'
+    }
+
+    local {
+      // Automatically download and install Tomcat
+      installer {
+        installConfiguration = configurations.tomcatZip
+        // FAMILY_UNIX, FAMILY_WINDOWS, FAMILY_MAC
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+          downloadDir = file('c:/tomcat')
+          extractDir  = file('c:/tomcat')
+        } else {
+          downloadDir = file('/opt/javatool/tomcat')
+          extractDir  = file('/opt/javatool/tomcat')
+        }
+      }
+    }
+  }
+
+  cargoRunLocal {
+    dependsOn war
+  }
+
+  def tomcatVersion = dependencyManagement.importedProperties['tomcat.version']
+
+  dependencies {
+    // Gradle Cargo Plugin
+    cargo             'org.codehaus.cargo:cargo-core-uberjar:1.+'
+    cargo             'org.codehaus.cargo:cargo-ant:1.+'
+    cargo             'org.slf4j:slf4j-api'
+
+    // Tomcat type=ZIP/tar.gz
+    tomcatZip         "org.apache.tomcat:tomcat:${tomcatVersion}@tar.gz"
+
+    // Tomcat Servlet/JSP/EL Library
+    providedCompile   'org.apache.tomcat:tomcat-jsp-api'
+    //providedCompile 'org.apache.tomcat:tomcat-servlet-api'
+    //providedCompile 'org.apache.tomcat:tomcat-el-api'
+
+    // Tomcat JSTL Library
+    runtimeOnly       'org.apache.taglibs:taglibs-standard-spec:1.+'
+    runtimeOnly       'org.apache.taglibs:taglibs-standard-impl:1.+'
+  }
+}
+
+// Resource Filtering
+allprojects {
+  tasks.withType(Copy) {
+    def props = project.ext.properties.findAll {
+      it.key.startsWith('jdbc')      && (it.value instanceof String) ||
+      it.key.startsWith('hibernate') && (it.value instanceof String) ||
+      it.key.startsWith('jpa')       && (it.value instanceof String)
+    }
+    filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: props)
+  }
+
+  task printProps {
+    doLast {
+      println "jdbcDriver       = ${jdbcDriver}"
+      println "jdbcUrl          = ${jdbcUrl}"
+      println "jdbcUsername     = ${jdbcUsername}"
+      println "jdbcPassword     = ${jdbcPassword}"
+      println "jdbcDataSource   = ${jdbcDataSource}"
+      println "hibernateDialect = ${hibernateDialect}"
+    }
+  }
+}
+

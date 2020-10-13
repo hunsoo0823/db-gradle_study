@@ -1,0 +1,8 @@
+gradle clean
+
+gradle ctest
+
+gradle qtest
+
+gradle clean test
+

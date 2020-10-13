@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="exercise.AssertJTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2020-09-28T16:36:44" hostname="songhyeonsuui-MacBookPro.local" time="0.114">
+  <properties/>
+  <testcase name="testFloat()" classname="exercise.AssertJTest" time="0.082"/>
+  <testcase name="testInteger()" classname="exercise.AssertJTest" time="0.008"/>
+  <testcase name="testString()" classname="exercise.AssertJTest" time="0.007"/>
+  <testcase name="testCollection()" classname="exercise.AssertJTest" time="0.015"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,7 @@
+gradle clean
+
+gradle ctest
+gradle qtest
+gradle atest
+
+gradle db

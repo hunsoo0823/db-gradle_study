@@ -1,0 +1,64 @@
+plugins {
+  id 'java'
+}
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  // Slf4j
+  implementation     'org.slf4j:slf4j-api:1.7.+'
+  runtimeOnly        'ch.qos.logback:logback-classic:1.2.+'
+
+  // JUnit 4
+  //testImplementation 'junit:junit:4.13'
+
+  // JUnit 5
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.6.+'
+
+  // Hamcrest
+  testImplementation 'org.hamcrest:hamcrest-library:2.+'
+
+  // AssertJ
+  testImplementation 'org.assertj:assertj-core:3.+'
+}
+
+test {
+  // Enable JUnit 5 (Gradle 4.6+)
+  useJUnitPlatform()
+
+  outputs.upToDateWhen {false}
+  testLogging {
+    events = ['passed', 'skipped', 'failed']
+    showStandardStreams = true
+    exceptionFormat = 'full'
+  }
+
+  afterSuite { desc, result ->
+    if (!desc.parent) {
+      println "\nResults: ${result.resultType} " +
+        "(${result.testCount} tests -> " +
+        "${result.successfulTestCount} successes, " +
+        "${result.failedTestCount} failures, " +
+        "${result.skippedTestCount} skipped)"
+    }
+  }
+}
+
+task helloworld(dependsOn: classes, type: JavaExec) {
+  group = 'Application'
+  description = 'Runs HelloWorld'
+
+  main = 'exercise.HelloWorld'
+  classpath = sourceSets.main.runtimeClasspath
+}
+
+task slf4j(dependsOn: classes, type: JavaExec) {
+  group = 'Application'
+  description = 'Runs Slf4jLogback'
+
+  main = 'exercise.Slf4jLogback'
+  classpath = sourceSets.main.runtimeClasspath
+}
+

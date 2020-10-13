@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="
+  http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx.xsd
+  http://www.springframework.org/schema/data/jpa
+  http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+  <!-- <context:property-placeholder location="classpath:jdbc.properties" /> -->
+
+  <!-- @Component, @Repository, @Service, @Controller  -->
+  <!-- <context:component-scan base-package="com.oreilly.hh" /> -->
+
+  <!-- @Autowired, @Resource, and etc -->
+  <!-- <context:annotation-config /> -->
+
+  <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+    <property name="dataSourceProperties">
+      <props>
+        <prop key="url">jdbc:h2:file:./build/music</prop>
+        <prop key="user">sa</prop>
+        <prop key="password"></prop>
+      </props>
+    </property>
+    <property name="dataSourceClassName" value="org.h2.jdbcx.JdbcDataSource" />
+  </bean>
+
+  <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
+    <constructor-arg ref="hikariConfig" />
+  </bean>
+
+  <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="packagesToScan" value="com.oreilly.hh.data" />
+    <property name="jpaVendorAdapter">
+      <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <!-- <property name="database"    value="${jpa.database}" /> -->
+        <!-- <property name="showSql"     value="${jpa.showSql}" /> -->
+        <!-- <property name="generateDdl" value="${jpa.generateDdl}" /> -->
+      </bean>
+    </property>
+    <property name="jpaProperties">
+      <props>
+        <prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+        <prop key="hibernate.hbm2ddl.auto">update</prop>
+        <prop key="hibernate.hbm2ddl.import_files_sql_extractor">
+          org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
+        </prop>
+        <prop key="hibernate.show_sql">false</prop>
+        <prop key="hibernate.format_sql">false</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="entityManagerFactory" />
+  </bean>
+
+  <!-- @Transactional -->
+  <tx:annotation-driven transaction-manager="transactionManager" />
+
+  <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
+    <property name="entityManagerFactory" ref="entityManagerFactory" />
+  </bean>
+
+  <bean id="albumDAO" class="com.oreilly.hh.dao.hibernate.AlbumHibernateDAO">
+    <property name="entityManager" ref="entityManager"/>
+  </bean>
+
+  <bean id="artistDAO" class="com.oreilly.hh.dao.hibernate.ArtistHibernateDAO">
+    <property name="entityManager" ref="entityManager"/>
+  </bean>
+
+  <bean id="trackDAO" class="com.oreilly.hh.dao.hibernate.TrackHibernateDAO">
+    <property name="entityManager" ref="entityManager"/>
+  </bean>
+
+  <bean id="createTest" class="com.oreilly.hh.service.CreateTest">
+    <property name="trackDAO" ref="trackDAO"/>
+    <property name="artistDAO" ref="artistDAO"/>
+  </bean>
+
+  <bean id="queryTest" class="com.oreilly.hh.service.QueryTest">
+    <property name="trackDAO" ref="trackDAO"/>
+  </bean>
+
+  <bean id="albumTest" class="com.oreilly.hh.service.AlbumTest">
+    <property name="albumDAO" ref="albumDAO"/>
+    <property name="artistDAO" ref="artistDAO"/>
+    <property name="trackDAO" ref="trackDAO"/>
+  </bean>
+
+</beans>

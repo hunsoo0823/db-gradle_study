@@ -1,0 +1,57 @@
+
+Use INNER JOIN instead of IN ELEMENTS() in Hibernate 5
+====================================================
+
+(
+How to remove Hibernate deprecation warning message;
+http://alexandra.pomogi-mne.com/java-how-to-remove-hibernate-deprecation-warning-message-stack-overflow-5165007938/
+)
+
+ch09-hsql/src/main/java/com/oreilly/hh/data/Track.hbm.xml
+ch10-mysql/src/main/java/com/oreilly/hh/data/Track.hbm.xml
+ch11-eclipse/src/main/java/com/oreilly/hh/data/Track.hbm.xml
+
+    where :artist in elements(track.artists)
+
+    WARN  toColumns: HHH90000016: Found use of deprecated 'collection property' syntax in HQL/JPQL query [null.elements]; use collection function syntax instead [elements(null)].
+
+
+===>  Instead of using MEMBER OF or ELEMENTS(), rather use an INNER JOIN.
+
+
+ <query name="com.oreilly.hh.trackSummary">
+    <![CDATA[
+    select count(*), min(track.playTime), max(track.playTime)
+    from Track as track
+    where :artist in elements(track.artists)
+    ]]>
+  </query>
+
+--->
+
+ <query name="com.oreilly.hh.trackSummary">
+    <![CDATA[
+    select count(*), min(track.playTime), max(track.playTime)
+    from Track as track inner join track.artists artist
+    where artist = :artist
+    ]]>
+  </query>
+
+
+
+
+  ref:
+
+    List<Book> books = session.createQuery("from Book b where :x MEMBER OF b.bookCategories")
+        .setParameter("x", crimeStory)
+        .list();
+
+    List<Book> books = session.createQuery("from Book b where ? IN ELEMENTS(b.bookCategories)")
+        .setParameter(0, crimeStory)
+        .list();
+
+    -->
+
+    List<Book> books = session.createQuery("from Book b INNER JOIN b.bookCategories bc where bc = :category")
+        .setParameter("category", crimeStory)
+        .list();

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:mvc="http://www.springframework.org/schema/mvc"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="
+  http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/mvc
+  http://www.springframework.org/schema/mvc/spring-mvc.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+  <context:property-placeholder location="classpath:jdbc-hibernate.properties"/>
+
+  <!-- Auto scan the components -->
+  <!-- @Component, @Repository, @Service, @Controller  -->
+  <context:component-scan base-package="com.oreilly.hh.dao.hibernate,com.oreilly.hh.service,com.oreilly.hh.web"/>
+
+  <!-- Process annotations on registered beans like @Autowired... -->
+  <context:annotation-config/>
+
+  <!-- Enables the Spring MVC @Controller programming model -->
+  <mvc:annotation-driven />
+
+  <!-- This tag allows for mapping the DispatcherServlet to "/" -->
+  <!--
+  <mvc:default-servlet-handler/>
+  -->
+
+  <!-- Handles HTTP GET requests for /resources/** by efficiently
+       serving up static resources in the ${webappRoot}/resources directory -->
+  <!--
+  <mvc:resources mapping="/resources/**" location="/resources/" />
+  -->
+
+  <!-- Resolves views selected for rendering by @Controllers to .jsp resources
+       in the /WEB-INF/views directory -->
+  <bean
+    class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="prefix" value="/WEB-INF/views/" />
+    <property name="suffix" value=".jsp" />
+  </bean>
+
+  <!-- DataSource
+  <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+  <property name="driverClassName" value="${jdbc.driver}" />
+  <property name="url" value="${jdbc.url}" />
+  <property name="username" value="${jdbc.username}" />
+  <property name="password" value="${jdbc.password}" />
+  </bean>
+
+  <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+  <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${jdbc.driver}" />
+    <property name="url" value="${jdbc.url}" />
+    <property name="username" value="${jdbc.username}" />
+    <property name="password" value="${jdbc.password}" />
+  </bean>
+
+  <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+    <property name="driverClass" value="${jdbc.driver}" />
+    <property name="jdbcUrl" value="${jdbc.url}" />
+    <property name="user" value="${jdbc.username}" />
+    <property name="password" value="${jdbc.password}" />
+  </bean>
+  -->
+
+  <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+    <property name="dataSourceProperties">
+      <props>
+        <prop key="url">${jdbc.url}</prop>
+        <prop key="user">${jdbc.username}</prop>
+        <prop key="password">${jdbc.password}</prop>
+      </props>
+    </property>
+    <property name="dataSourceClassName" value="${jdbc.datasource}" />
+  </bean>
+
+  <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
+    <constructor-arg ref="hikariConfig" />
+  </bean>
+
+  <!-- Hibernate 5 SessionFactory Bean definition -->
+  <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="packagesToScan" value="com.oreilly.hh.data"/>
+
+    <property name="hibernateProperties">
+      <props>
+        <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+        <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+        <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+        <prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>

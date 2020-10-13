@@ -1,0 +1,24 @@
+gradle clean
+
+gradle classes
+
+gradle helloworld
+
+gradle slf4j
+
+gradle test
+
+gradle test --tests exercise.JUnitTest
+
+gradle test --tests exercise.HamcrestTest
+
+gradle test --tests exercise.HamcrestTest.testNumber
+
+gradle test --tests exercise.HamcrestTest.testString
+
+gradle test --tests exercise.HamcrestTest.testCollection
+
+gradle test --tests 'exercise.HamcrestTest.test_anyOf*'
+
+gradle test --tests '*anyOf*'
+
