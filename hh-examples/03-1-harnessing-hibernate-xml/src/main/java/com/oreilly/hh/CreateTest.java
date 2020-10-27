@@ -21,13 +21,14 @@ public class CreateTest {
 
         try {
             tx = session.beginTransaction();
-
+            // create Java Object
             Track track = new Track("Russian Trance",
                                     "vol2/album610/track02.mp3",
                                     LocalTime.of(00,03,30),
-                                    (short)0);
+                                    (short)0); 
+            // save
             session.save(track);
-
+            
             track = new Track("Video Killed the Radio Star",
                               "vol2/album611/track12.mp3",
                               LocalTime.of(00,03,49),
