@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entity-mappings version="2.1"
+  xmlns="http://www.eclipse.org/eclipselink/xsds/persistence/orm"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+<sql-result-set-mapping name="XmlDepartmentMapping">
+  <entity-result entity-class="exercise.model.Department">
+    <field-result name="id" column="id"/>
+    <field-result name="name" column="name"/>
+  </entity-result>
+</sql-result-set-mapping>
+
+<sql-result-set-mapping name="XmlEmployeeMapping">
+  <entity-result entity-class="exercise.model.Employee">
+    <field-result name="id" column="id"/>
+    <field-result name="name" column="name"/>
+    <field-result name="department_id" column="department_id"/>
+  </entity-result>
+</sql-result-set-mapping>
+
+<sql-result-set-mapping name="XmlDepartmentValueMapping">
+  <constructor-result target-class="exercise.model.DepartmentValue">
+    <column name="id" class="java.lang.Long"/>
+    <column name="name"/>
+  </constructor-result>
+</sql-result-set-mapping>
+
+<sql-result-set-mapping name="XmlEmployeeValueMapping">
+  <constructor-result target-class="exercise.model.EmployeeValue">
+    <column name="id" class="java.lang.Long"/>
+    <column name="name"/>
+    <column name="department_id" class="java.lang.Long"/>
+  </constructor-result>
+</sql-result-set-mapping>
+
+</entity-mappings>
+

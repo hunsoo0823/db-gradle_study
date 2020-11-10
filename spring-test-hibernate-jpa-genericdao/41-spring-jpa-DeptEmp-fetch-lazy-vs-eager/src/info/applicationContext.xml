@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+  <!--
+    context:component-scan
+        implies
+    context:annotation-config
+        implies
+    PersistenceAnnotationBeanPostProcessor
+  -->
+
+  <!-- @Component, @Repository, @Service, @Controller  -->
+  <context:component-scan base-package="exercise.repository, exercise.service" />
+
+  <!-- @Autowired, @Resource, and etc -->
+  <!-- enabled by component-scan -->
+  <context:annotation-config />
+
+  <!-- DataSource -->
+  <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+    <property name="dataSourceClassName" value="@jdbcDataSource@" />
+    <property name="dataSourceProperties">
+      <props>
+        <prop key="url">@jdbcUrl@</prop>
+        <prop key="user">@jdbcUsername@</prop>
+        <prop key="password">@jdbcPassword@</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="hikariDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+    <constructor-arg ref="hikariConfig" />
+  </bean>
+
+  <!-- ttddyy/DataSource-proxy -->
+  <bean id="dataSource" class="net.ttddyy.dsproxy.support.ProxyDataSource">
+    <property name="dataSource" ref="hikariDataSource" />
+    <property name="listener">
+      <bean class="net.ttddyy.dsproxy.listener.ChainListener">
+        <property name="listeners">
+          <list>
+            <bean class="net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener"/>
+            <bean class="net.ttddyy.dsproxy.listener.DataSourceQueryCountListener" />
+          </list>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <!-- Hibernate Session Factory -->
+  <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="packagesToScan" value="exercise.model" />
+    <property name="hibernateProperties">
+      <value>
+        hibernate.dialect=@hibernateDialect@
+        hibernate.hbm2ddl.auto=create
+        hibernate.show_sql=false
+        hibernate.format_sql=false
+      </value>
+    </property>
+  </bean>
+
+  <!-- Hibernate transaction management -->
+  <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <!-- Enable annotation style of managing transactions -->
+  <tx:annotation-driven transaction-manager="transactionManager" />
+
+</beans>
+

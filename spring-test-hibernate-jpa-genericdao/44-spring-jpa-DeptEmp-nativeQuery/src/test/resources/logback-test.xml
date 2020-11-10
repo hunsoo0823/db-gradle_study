@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%highlight(%-5level) %green([%32.32logger{32}]) %msg%n</pattern>
+      <!-- <pattern>%highlight(%-5level) %green([%64.64logger{64}]) %msg%n</pattern> -->
+    </encoder>
+  </appender>
+
+  <logger name="exercise" level="TRACE" />
+
+  <!-- Spring -->
+  <!-- <logger name="org.springframework" level="WARN" /> -->
+  <!-- <logger name="org.springframework.jdbc.datasource.init.ScriptUtils" level="DEBUG" /> -->
+  <!-- <logger name="org.hibernate.tool.schema.internal.SchemaCreatorImpl" level="INFO" /> -->
+  <!-- <logger name="org.springframework.transaction" level="WARN" /> -->
+  <!-- <logger name="org.springframework.transaction.interceptor" level="TRACE" /> -->
+  <!-- <logger name="org.springframework.test.context.transaction.TransactionContext" level="INFO" /> -->
+  <logger name="org.hibernate.engine.transaction.internal.TransactionImpl" level="DEBUG" />
+
+  <!-- Hibernate -->
+  <!-- <logger name="org.hibernate.SQL" level="DEBUG" /> -->
+  <!-- <logger name="org.hibernate.type.descriptor.sql" level="TRACE" /> -->
+  <!-- <logger name="org.hibernate.engine.transaction.spi.AbstractTransactionImpl" level="DEBUG" />-->
+  <!-- <logger name="org.springframework.orm.hibernate4.HibernateTransactionManager" level="DEBUG" />-->
+
+  <!-- DataSource Proxy -->
+  <!-- <logger name="net.ttddyy" level="DEBUG" /> -->
+
+  <root level="WARN">
+    <appender-ref ref="console" />
+  </root>
+
+</configuration>

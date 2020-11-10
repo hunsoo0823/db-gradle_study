@@ -1,0 +1,33 @@
+// Gradle 5.6 above
+// https://docs.gradle.org/5.6/userguide/plugins.html#sec:plugin_version_management
+pluginManagement {
+  plugins {
+    id 'org.jetbrains.kotlin.jvm'           version "${kotlinVersion}"
+    id 'org.jetbrains.kotlin.kapt'          version "${kotlinVersion}"
+    id 'org.jetbrains.kotlin.plugin.jpa'    version "${kotlinVersion}"
+    id 'org.jetbrains.kotlin.plugin.spring' version "${kotlinVersion}"
+
+    id 'org.springframework.boot'           version "${springBootVersion}"
+    id 'io.spring.dependency-management'    version "${springDependencyManagementVersion}"
+
+    id 'nu.studer.jooq'                     version "${nuStuderJooqVersion}"
+    id 'org.flywaydb.flyway'                version "${flywayVersion}"
+
+    id 'io.freefair.lombok'                 version "${freefairLombokVersion}"
+    id 'io.franzbecker.gradle-lombok'       version "${franzbeckerGradleLombokVersion}"
+    id 'com.github.ben-manes.versions'      version "${versionsVersion}"
+  }
+}
+
+// void include(String... projectPaths)
+// https://docs.gradle.org/current/dsl/org.gradle.api.initialization.Settings.html#
+//    org.gradle.api.initialization.Settings:include(java.lang.String[])
+
+def subprjs = rootDir.listFiles()
+  .findAll { it.isDirectory() && it.name ==~ /^\d+-.*/ }
+  .collect { it.name } as String[]
+
+if (subprjs.length > 0) {
+  include subprjs
+}
+
